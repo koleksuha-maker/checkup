@@ -3,12 +3,10 @@ import requests
 import pandas as pd
 import plotly.express as px
 
-# URL вашего FastAPI
 API_URL = "https://checkup-dz.onrender.com" 
-
 st.title("Энергорынок РФ: Потребление и Цены")
 
-# 1. Получение данных (как в примере PDF)
+# Получение данных 
 try:
     response = requests.get(f"{API_URL}/records")
     # Проверяем, что сервер ответил успешно (код 200)
@@ -21,23 +19,23 @@ except Exception as e:
     st.error(f"Не удалось подключиться к API: {e}")
     data = []
 
-# 2. Таблица (как в примере PDF)
+# Таблица 
 df = pd.DataFrame(data)
 st.dataframe(df)
 
-# --- Простой график (из Page 2 PDF) ---
+# графики
 if not df.empty:
-    # Первый график: Интерактивный через Plotly (потребление)
+    # Первый график через Plotly (потребление)
     fig = px.line(df, x="timestep", y="consumption_eur", title="Потребление (Европа) — Plotly")
     st.plotly_chart(fig)
 
-    # ВТОРОЙ ГРАФИК: Простой через st.line_chart (цены)
+    # Второй график простой через st.line_chart (цены)
     # Для st.line_chart лучше подготовить данные, где индекс — это время
     chart_data = df.set_index("timestep")[["price_eur", "price_sib"]]
     st.write("Цены в обеих зонах — Streamlit Line Chart")
     st.line_chart(chart_data)
 
-# --- Форма добавления записи ---
+# Форма добавления записи
 with st.form("add_record"):
     timestep = st.text_input("Timestep (YYYY-MM-DD HH:MM:SS)")
     consum_eur = st.number_input("Consumption EUR", min_value=0.0)
@@ -56,7 +54,7 @@ with st.form("add_record"):
         }
         res = requests.post(f"{API_URL}/records", json=new_data)
         if res.status_code == 200:
-            # ИСПРАВЛЕНИЕ 2: Если st.rerun() не работает, используем старую версию
+            # Если st.rerun() не работает, используем старую версию
             try:
                 st.rerun()
             except AttributeError:
@@ -64,7 +62,7 @@ with st.form("add_record"):
         else:
             st.error("Ошибка при добавлении записи")
 
-# --- Удаление записи ---
+# Удаление записи
 delete_id = st.number_input("ID записи для удаления", min_value=0, step=1)
 if st.button("Удалить"):
     try:
@@ -74,7 +72,7 @@ if st.button("Удалить"):
             st.success(f"Готово! Запись {delete_id} удалена.")
             st.rerun()
         elif res.status_code == 404:
-            # Выводим конкретную причину из FastAPI
+            # Выводим ошибки
             error_details = res.json().get("detail", "ID не найден")
             st.warning(f"Внимание: {error_details}")
         else:
@@ -82,5 +80,6 @@ if st.button("Удалить"):
             
     except Exception as e:
         st.error(f"Не удалось отправить запрос: {e}")
+
 
 
