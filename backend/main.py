@@ -1,4 +1,3 @@
-# пока мы здесь
 from fastapi import FastAPI, HTTPException
 import pandas as pd
 from pydantic import BaseModel
@@ -9,12 +8,12 @@ app = FastAPI()
 from fastapi.middleware.cors import CORSMiddleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Это разрешает твоему сайту брать данные отсюда
+    allow_origins=["*"],  # Это разрешает сайту брать данные отсюда
     allow_methods=["*"],
     allow_headers=["*"],
 )
 CSV_URL = "https://raw.githubusercontent.com/koleksuha-maker/homework-3/refs/heads/main/RU_Electricity_Market_PZ_dayahead_price_volume%20(1).csv"
-# 1. Функция загрузки данных
+# загрузка данных
 def load_data():
     # Мы используем try-except, потому что в задании это обязательное требование
     try:
@@ -24,13 +23,13 @@ def load_data():
     except:
         # Если файла "data.csv" нет, эта часть кода сработает и скачает его из интернета
         df = pd.read_csv(CSV_URL)
-        # Добавляем колонку id, так как в твоем файле её изначально нет
+        # Добавляем колонку id, так как в файле её изначально нет
         df["id"] = range(len(df))
         # Сохраняем, чтобы в следующий раз файл уже был на компьютере
         df.to_csv("data.csv", index=False)
         return df
 
-# 2. Функция сохранения данных
+# сохранение данных
 def save_data(df):
     try:
         df.to_csv("data.csv", index=False)
@@ -38,7 +37,7 @@ def save_data(df):
         # Если вдруг файл нельзя перезаписать, сервер не упадет, а выдаст ошибку
         raise HTTPException(status_code=500, detail="Не удалось сохранить файл")
 
-# 3. Валидация (описание того, какие данные мы принимаем)
+# Валидация 
 class RecordCreate(BaseModel):
     id: Optional[int] = None
     timestep: datetime  # Проверка, что дата введена корректно
@@ -47,7 +46,7 @@ class RecordCreate(BaseModel):
     price_eur: float
     price_sib: float
 
-# --- Твои эндпоинты (задания 1, 2, 3) ---
+# get, post и  delete
 
 @app.get("/records")
 def get_records():
@@ -81,10 +80,11 @@ def delete_record(record_id: int):
         raise HTTPException(status_code=404, detail="Запись с таким ID не найдена")
     
     try:
-        # 2. Попытка удаления и сохранения
+        # Попытка удаления и сохранения
         df = df[df["id"] != record_id]
         save_data(df)
         return {"status": "success", "message": f"Запись {record_id} успешно удалена"}
     except Exception as e:
-        # 3. Обработка системных ошибок (код 500)
+        # Обработка системных ошибок (код 500)
         raise HTTPException(status_code=500, detail=f"Ошибка при сохранении изменений: {str(e)}")  
+
