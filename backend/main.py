@@ -80,8 +80,11 @@ def delete_record(record_id: int):
     if record_id not in df["id"].values:
         raise HTTPException(status_code=404, detail="Запись с таким ID не найдена")
     
-    # Оставляем все строки, кроме той, которую хотим удалить
-    df = df[df["id"] != record_id]
-    save_data(df)
-
-    return {"message": f"Запись {record_id} удалена"}
+    try:
+        # 2. Попытка удаления и сохранения
+        df = df[df["id"] != record_id]
+        save_data(df)
+        return {"status": "success", "message": f"Запись {record_id} успешно удалена"}
+    except Exception as e:
+        # 3. Обработка системных ошибок (код 500)
+        raise HTTPException(status_code=500, detail=f"Ошибка при сохранении изменений: {str(e)}")  
