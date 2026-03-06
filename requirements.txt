@@ -1,9 +1,10 @@
 fastapi
 uvicorn
-pandas
+pandas<2.2.0
 pydantic
 requests
-streamlit
+streamlit>=1.30.0
 plotly
 altair==4.2.2
 pyarrow==14.0.1
+numpy<2.0.0
