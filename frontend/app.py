@@ -54,7 +54,7 @@ with st.form("add_record"):
             "price_eur": price_eur,
             "price_sib": price_sib
         }
-         res = requests.post(f"{API_URL}/records", json=new_data)
+        res = requests.post(f"{API_URL}/records", json=new_data)
         if res.status_code == 200:
             # ИСПРАВЛЕНИЕ 2: Если st.rerun() не работает, используем старую версию
             try:
@@ -76,3 +76,4 @@ if st.button("Delete"):
             st.experimental_rerun()
     else:
         st.error("Ошибка при удалении. Проверьте ID.")
+
