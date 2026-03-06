@@ -4,13 +4,22 @@ import pandas as pd
 import plotly.express as px
 
 # URL вашего FastAPI
-API_URL = "https://checkup-dz.onrender.com/"
+API_URL = "https://checkup-dz.onrender.com" 
 
 st.title("Энергорынок РФ: Потребление и Цены")
 
 # 1. Получение данных (как в примере PDF)
-response = requests.get(f"{API_URL}/records")
-data = response.json()
+try:
+    response = requests.get(f"{API_URL}/records")
+    # Проверяем, что сервер ответил успешно (код 200)
+    if response.status_code == 200:
+        data = response.json()
+    else:
+        st.error(f"Ошибка сервера: {response.status_code}")
+        data = []
+except Exception as e:
+    st.error(f"Не удалось подключиться к API: {e}")
+    data = []
 
 # 2. Таблица (как в примере PDF)
 df = pd.DataFrame(data)
@@ -45,12 +54,25 @@ with st.form("add_record"):
             "price_eur": price_eur,
             "price_sib": price_sib
         }
-        requests.post(f"{API_URL}/records", json=new_data)
-        st.rerun()
+         res = requests.post(f"{API_URL}/records", json=new_data)
+        if res.status_code == 200:
+            # ИСПРАВЛЕНИЕ 2: Если st.rerun() не работает, используем старую версию
+            try:
+                st.rerun()
+            except AttributeError:
+                st.experimental_rerun()
+        else:
+            st.error("Ошибка при добавлении записи")
 
 # --- Удаление записи ---
 delete_id = st.number_input("ID to delete", min_value=0, step=1)
 if st.button("Delete"):
-    requests.delete(f"{API_URL}/records/{int(delete_id)}")
-
-    st.rerun()
+    res = requests.delete(f"{API_URL}/records/{int(delete_id)}")
+    if res.status_code == 200:
+        # ИСПРАВЛЕНИЕ 3: Аналогично для удаления
+        try:
+            st.rerun()
+        except AttributeError:
+            st.experimental_rerun()
+    else:
+        st.error("Ошибка при удалении. Проверьте ID.")
