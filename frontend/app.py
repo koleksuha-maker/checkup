@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.express as px
 
 # URL вашего FastAPI
-API_URL = "http://127.0.0.1:8000"
+API_URL = "https://checkup-dz.onrender.com/"
 
 st.title("Энергорынок РФ: Потребление и Цены")
 
@@ -52,4 +52,5 @@ with st.form("add_record"):
 delete_id = st.number_input("ID to delete", min_value=0, step=1)
 if st.button("Delete"):
     requests.delete(f"{API_URL}/records/{int(delete_id)}")
+
     st.rerun()
