@@ -6,6 +6,13 @@ from datetime import datetime
 from typing import Optional
 
 app = FastAPI()
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Это разрешает твоему сайту брать данные отсюда
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 CSV_URL = "https://raw.githubusercontent.com/koleksuha-maker/homework-3/refs/heads/main/RU_Electricity_Market_PZ_dayahead_price_volume%20(1).csv"
 # 1. Функция загрузки данных
 def load_data():
@@ -76,4 +83,5 @@ def delete_record(record_id: int):
     # Оставляем все строки, кроме той, которую хотим удалить
     df = df[df["id"] != record_id]
     save_data(df)
+
     return {"message": f"Запись {record_id} удалена"}
