@@ -65,15 +65,22 @@ with st.form("add_record"):
             st.error("Ошибка при добавлении записи")
 
 # --- Удаление записи ---
-delete_id = st.number_input("ID to delete", min_value=0, step=1)
-if st.button("Delete"):
-    res = requests.delete(f"{API_URL}/records/{int(delete_id)}")
-    if res.status_code == 200:
-        # ИСПРАВЛЕНИЕ 3: Аналогично для удаления
-        try:
+delete_id = st.number_input("ID записи для удаления", min_value=0, step=1)
+if st.button("Удалить"):
+    try:
+        res = requests.delete(f"{API_URL}/records/{int(delete_id)}")
+        
+        if res.status_code == 200:
+            st.success(f"Готово! Запись {delete_id} удалена.")
             st.rerun()
-        except AttributeError:
-            st.experimental_rerun()
-    else:
-        st.error("Ошибка при удалении. Проверьте ID.")
+        elif res.status_code == 404:
+            # Выводим конкретную причину из FastAPI
+            error_details = res.json().get("detail", "ID не найден")
+            st.warning(f"Внимание: {error_details}")
+        else:
+            st.error(f"Ошибка сервера ({res.status_code}): {res.text}")
+            
+    except Exception as e:
+        st.error(f"Не удалось отправить запрос: {e}")
+
 
