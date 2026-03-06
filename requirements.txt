@@ -5,6 +5,8 @@ pydantic
 requests
 streamlit>=1.30.0
 plotly
+#Версии ниже пришлось поменять для стабильной работы Streamlit и Pandas, St постоянно ругался, что ему все не так
 altair==4.2.2
 pyarrow==14.0.1
 numpy<2.0.0
+
